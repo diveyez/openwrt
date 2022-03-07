@@ -168,8 +168,7 @@ class GitHubCommitTsCache(object):
                 fcntl.lockf(fileno, fcntl.LOCK_SH)
                 self._cache_init(fin)
                 if k in self.cache:
-                    ts = self.cache[k][0]
-                    return ts
+                    return self.cache[k][0]
             finally:
                 fcntl.lockf(fileno, fcntl.LOCK_UN)
         return None
@@ -252,11 +251,11 @@ class DownloadGitHubTarball(object):
         self._init_commit_ts()
         with Path(TMPDIR_DL, keep=True) as dir_dl:
             # fetch tarball from GitHub
-            tarball_path = os.path.join(dir_dl.path, self.subdir + '.tar.gz.dl')
+            tarball_path = os.path.join(dir_dl.path, f'{self.subdir}.tar.gz.dl')
             with Path(tarball_path, isdir=False):
                 self._fetch(tarball_path)
                 # unpack
-                d = os.path.join(dir_dl.path, self.subdir + '.untar')
+                d = os.path.join(dir_dl.path, f'{self.subdir}.untar')
                 with Path(d, preclean=True) as dir_untar:
                     tarball_prefix = Path.untar(tarball_path, into=dir_untar.path)
                     dir0 = os.path.join(dir_untar.path, tarball_prefix)
@@ -370,8 +369,7 @@ class DownloadGitHubTarball(object):
             date = date[attr]
         date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
         date = date.timetuple()
-        ct = calendar.timegm(date)
-        return ct
+        return calendar.timegm(date)
 
     def _fetch(self, path):
         """Fetch tarball of the specified version ref."""
@@ -393,15 +391,14 @@ class DownloadGitHubTarball(object):
 
     def _make_request(self, path):
         """Request GitHub API endpoint on ``path``."""
-        url = 'https://api.github.com' + path
+        url = f'https://api.github.com{path}'
         headers = {
             'Accept': 'application/vnd.github.v3+json',
             'User-Agent': 'OpenWrt',
         }
         req = urllib.request.Request(url, headers=headers)
         sslcontext = ssl._create_unverified_context()
-        fileobj = urllib.request.urlopen(req, context=sslcontext)
-        return fileobj
+        return urllib.request.urlopen(req, context=sslcontext)
 
     def _error(self, msg):
         return DownloadGitHubError('{}: {}'.format(self.source, msg))

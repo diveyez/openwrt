@@ -31,7 +31,7 @@ def adam(cmd):
 	print("> %s"%(cmd))
 	resp = ftp.sendcmd(cmd)
 	print("< %s"%(resp))
-	assert resp[0:3] == "200"
+	assert resp[:3] == "200"
 
 ftp.set_pasv(True)
 # The following parameters allow booting the avm recovery system with this

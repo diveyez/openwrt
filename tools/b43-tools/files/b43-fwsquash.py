@@ -53,10 +53,7 @@ if not fwfiles:
 required_fwfiles = []
 
 def revs_match(revs_a, revs_b):
-	for rev in revs_a:
-		if rev in revs_b:
-			return True
-	return False
+	return any(rev in revs_b for rev in revs_a)
 
 def phytypes_match(types_a, types_b):
 	for type in types_a:
@@ -145,5 +142,5 @@ for f in fwfiles:
 for f in fwfiles:
 	if f not in required_fwfiles:
 		print("Deleting %s" % f)
-		os.unlink(fwpath + '/' + f)
+		os.unlink(f'{fwpath}/{f}')
 
